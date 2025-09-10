@@ -37,6 +37,7 @@ import {
   Network,
   Brain,
 } from "lucide-react"
+import { MobileNav } from "@/components/mobile-nav"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
@@ -44,10 +45,31 @@ import "./about.css";
 import { Mail, Phone } from "lucide-react";
 
 export default function Portfolio() {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   const [currentSlide, setCurrentSlide] = useState(1) // Start with center card (profile)
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [showAboutMe, setShowAboutMe] = useState(false)
   const [expandedEducation, setExpandedEducation] = useState(false)
+  const [currentSection, setCurrentSection] = useState('home')
+  
+  const handleNavigate = (section: string) => {
+    setCurrentSection(section)
+    const element = document.getElementById(section)
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth' })
+    }
+  }
   const [expandedExperience, setExpandedExperience] = useState(false)
   const [currentPhoto, setCurrentPhoto] = useState(0)
   const [isPhotoPlaying, setIsPhotoPlaying] = useState(true)

@@ -6,6 +6,7 @@ import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
 import "./responsive.css"
+import "./mobile.css"
 
 export const metadata: Metadata = {
   title: "Shijal Sharma Poudel - Portfolio",
