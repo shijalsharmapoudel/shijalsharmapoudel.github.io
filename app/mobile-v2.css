@@ -32,11 +32,19 @@
 
   /* Main content adjustments */
   .main-content {
-    margin-top: var(--header-height);
-    margin-bottom: calc(var(--footer-height) + var(--safe-area-inset-bottom));
-    min-height: calc(100vh - var(--header-height) - var(--footer-height));
+    margin-bottom: calc(var(--footer-height) + env(safe-area-inset-bottom, 0px));
+    min-height: calc(100vh - var(--footer-height));
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  /* Ensure content doesn't get hidden behind the navigation */
+  .content-wrapper {
+    padding-bottom: calc(var(--footer-height) + 1rem + env(safe-area-inset-bottom, 0px));
   }
 
   /* Card adjustments */
@@ -88,15 +96,49 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(var(--footer-height) + var(--safe-area-inset-bottom));
-    padding-bottom: var(--safe-area-inset-bottom);
+    height: var(--footer-height);
     background: rgba(10, 10, 10, 0.95);
-    backdrop-filter: blur(10px);
+    backdrop-filter: blur(12px);
     border-top: 1px solid rgba(147, 51, 234, 0.2);
+    z-index: 1000;
+    padding: 0 1rem;
+  }
+
+  .mobile-nav-container {
+    max-width: 500px;
+    margin: 0 auto;
+    height: 100%;
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
     align-items: center;
-    z-index: 50;
+  }
+
+  .mobile-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    color: rgb(156 163 175);
+    transition: all 0.2s ease;
+    min-width: 64px;
+  }
+
+  .mobile-nav-item.active {
+    color: rgb(147, 51, 234);
+    background: rgba(147, 51, 234, 0.1);
+  }
+
+  .mobile-nav-item:hover {
+    color: rgb(147, 51, 234);
+    background: rgba(147, 51, 234, 0.05);
+  }
+
+  .mobile-nav-item span {
+    font-size: 0.75rem;
+    font-weight: 500;
   }
 
   /* Typography adjustments */
