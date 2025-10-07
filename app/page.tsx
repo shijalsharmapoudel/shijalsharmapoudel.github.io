@@ -578,6 +578,9 @@ export default function Portfolio() {
     return () => observer.disconnect()
   }, [])
 
+  const totalProjectPages = Math.ceil(projects.length / 3)
+  const currentProjectPage = Math.floor(projectStart / 3) + 1
+
   const goToPhoto = (index: number) => {
     setCurrentPhoto(index)
   }
@@ -1259,6 +1262,9 @@ export default function Portfolio() {
                 <Button variant="ghost" size="sm" onClick={() => prevProjects(3)} className="text-white/70 hover:text-white">
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
+                <div className="px-2 py-1 bg-black/30 border border-white/10 rounded-md text-xs text-white/80">
+                  {currentProjectPage} / {totalProjectPages}
+                </div>
                 <Button variant="ghost" size="sm" onClick={() => nextProjects(3)} className="text-white/70 hover:text-white">
                   <ChevronRight className="w-5 h-5" />
                 </Button>
