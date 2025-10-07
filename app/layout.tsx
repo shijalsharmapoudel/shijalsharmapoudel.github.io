@@ -5,9 +5,6 @@ import { GeistMono } from "geist/font/mono"
 import { Analytics } from "@vercel/analytics/next"
 import { Suspense } from "react"
 import "./globals.css"
-import "./responsive.css"
-import "./mobile.css"
-import "./mobile-v2.css"
 
 export const metadata: Metadata = {
   title: "Shijal Sharma Poudel - Portfolio",
@@ -24,23 +21,6 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-        <style>{`
-          @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-          }
-
-          .animate-gradient {
-            animation: gradient 15s ease infinite;
-            background-size: 400% 400%;
-          }
-
-          .preserve-3d {
-            transform-style: preserve-3d;
-            perspective: 1000px;
-          }
-        `}</style>
       </head>
       <body 
         className={`font-sans ${GeistSans.variable} ${GeistMono.variable} bg-[#0a0a0a] text-white overflow-x-hidden`}

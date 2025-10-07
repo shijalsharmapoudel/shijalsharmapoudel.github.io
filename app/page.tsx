@@ -37,7 +37,7 @@ import {
   Network,
   Brain,
 } from "lucide-react"
-import { MobileNav } from "@/components/mobile-nav"
+// import { MobileNav } from "@/components/mobile-nav"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 
@@ -75,17 +75,19 @@ export default function Portfolio() {
   const [isPhotoPlaying, setIsPhotoPlaying] = useState(true)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const containerRef = useRef<HTMLDivElement>(null)
+  const [projectStart, setProjectStart] = useState(0)
+  const sectionIds = [
+    "hero",
+    "projects",
+    "experience-section",
+    "education-section",
+    "skills",
+    "awards",
+    "volunteer",
+    "gallery",
+  ]
 
-  // Import about.css
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '/app/about.css';
-    document.head.appendChild(link);
-    return () => {
-      document.head.removeChild(link);
-    };
-  }, []);
+  // about.css is imported statically above; no runtime stylesheet injection needed
 
   interface Position {
     title: string;
@@ -272,12 +274,82 @@ export default function Portfolio() {
 
   const projects = [
     {
+      title: "Intelligent TODO app",
+      year: "2025",
+      description:
+        "Built a clean, fast Streamlit app that classifies tasks using a hybrid approach combining rules (regex) for safety, local ML (TF-IDF + Logistic Regression) that adapts from edits, and Gemini (optional) for nuanced cases. Ensured robustness with keyword fallback and pseudo-labeling, enabling local ML to learn from high-confidence Gemini outputs.",
+      technologies: [
+        "Python",
+        "Streamlit",
+        "scikit-learn (TF-IDF, Logistic Regression)",
+        "regex",
+        "Google Gemini"
+      ],
+      status: "Completed",
+    },
+    {
+      title: "AirAware — PM2.5 Air Quality Forecasts with Health Guidance",
+      year: "2025",
+      description:
+        "Predicts PM2.5 for the next 6–24 hours with live nowcasts and uncertainty bands. Combines multiple models for accuracy, uses public air sensor + weather data, explains results, and provides health tips and alerts. Offers a web app and an API for real-time forecasts, what-if checks, and notifications; shipped with testing, monitoring, and containers.",
+      technologies: [
+        "Python",
+        "FastAPI",
+        "Streamlit",
+        "PyTorch",
+        "Prophet",
+        "ARIMA",
+        "scikit-learn",
+        "SHAP",
+        "MLflow",
+        "Docker"
+      ],
+      status: "Completed",
+    },
+    {
+      title: "NepaliGov — Retrieval-Augmented Q&A for Nepali Government Documents",
+      year: "2025",
+      description:
+        "End-to-end system that turns scanned Nepali government PDFs into searchable text and answers questions with citations (Nepali & English). Uses staged OCR with fallback, builds a vector index for fast search, and routes answers in the user’s preferred language. Provides a web app and REST API; includes quality checks, caching, and basic monitoring.",
+      technologies: [
+        "Python",
+        "FastAPI/Flask",
+        "FAISS",
+        "Sentence-Transformers",
+        "PaddleOCR/Tesseract",
+        "MarianMT",
+        "Redis",
+        "SQLite/Parquet",
+        "Docker",
+        "MLflow"
+      ],
+      status: "Completed",
+    },
+    {
+      title: "Chat with Your Files — Ask Questions about PDFs, Word, and Text",
+      year: "2024",
+      description:
+        "Upload a PDF/Word/text file and ask questions in plain English; the app finds matching parts and returns answers with citations. Cleans messy text, chunks content into readable sections, and searches by meaning and keywords with adjustable model and results.",
+      technologies: [
+        "Python",
+        "Streamlit",
+        "PyMuPDF",
+        "python-docx",
+        "sentence-transformers",
+        "rank-bm25",
+        "scikit-learn",
+        "NumPy",
+        "Google Gemini"
+      ],
+      status: "Completed",
+    },
+    {
       title: "Risk Detection Framework for Advanced Nuclear Reactors",
-      year: "2024 – Present",
+      year: "2024",
       description:
         "Built a risk detection framework analyzing geopolitical news and policy updates using web scraping, clustering, and automation.",
       technologies: ["Python", "Selenium", "K-Means/DBSCAN", "Data Visualization"],
-      status: "In Progress",
+      status: "Completed",
     },
     {
       title: "Credit Card Fraud Detection using Random Forest",
@@ -315,6 +387,13 @@ export default function Portfolio() {
   }
 
   const awardsAndCertifications = [
+    {
+      title: "AWS re:Invent All Builders Welcome Grant",
+      description:
+        "Awarded grant to attend the premier global cloud and AI conference in Las Vegas.",
+      year: "2025",
+      type: "Award",
+    },
     {
       title: "Winner – AI Hackathon",
       description:
@@ -462,6 +541,43 @@ export default function Portfolio() {
     setCurrentPhoto((prev) => (prev - 1 + photoGallery.length) % photoGallery.length)
   }
 
+  const visibleProjects = (count: number) => {
+    const result: typeof projects = []
+    for (let i = 0; i < count; i++) {
+      result.push(projects[(projectStart + i) % projects.length])
+    }
+    return result
+  }
+
+  const nextProjects = (count: number) => {
+    setProjectStart((prev) => (prev + count) % projects.length)
+  }
+
+  const prevProjects = (count: number) => {
+    setProjectStart((prev) => (prev - count + projects.length) % projects.length)
+  }
+
+  // Track section in view to highlight navbar links
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0]
+        if (visible?.target?.id) {
+          setCurrentSection(visible.target.id)
+        }
+      },
+      { root: null, rootMargin: "-20% 0px -60% 0px", threshold: [0.2, 0.4, 0.6, 0.8] }
+    )
+
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
+  }, [])
+
   const goToPhoto = (index: number) => {
     setCurrentPhoto(index)
   }
@@ -555,54 +671,54 @@ export default function Portfolio() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
-      <header className="fixed top-0 left-0 right-0 z-50 bg-black/20 backdrop-blur-md border-b border-white/10">
+      <header className="fixed top-0 left-0 right-0 z-50 border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+          <div className="flex items-center justify-between h-16 rounded-full px-4 mt-3 mx-4 md:mx-6 glass-nav ring-1 ring-white/10">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-white">Shijal Sharma Poudel</h1>
             </div>
 
             {/* Desktop Navigation */}
-            <nav className="hidden md:flex items-center space-x-8">
+            <nav className="hidden md:flex items-center space-x-6">
               <button
                 onClick={() => scrollToSection("hero")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'hero' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Home
               </button>
               <button
                 onClick={() => scrollToSection("projects")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'projects' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Projects
               </button>
               <button
                 onClick={() => scrollToSection("experience-section")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'experience-section' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Experience
               </button>
               <button
                 onClick={() => scrollToSection("education-section")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'education-section' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Education
               </button>
               <button
                 onClick={() => scrollToSection("skills")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'skills' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Skills
               </button>
               <button
                 onClick={() => scrollToSection("awards")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'awards' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 Awards
               </button>
               <button
                 onClick={() => scrollToSection("volunteer")}
-                className="text-white/70 hover:text-white transition-colors duration-200"
+                className={`transition-colors duration-200 ${currentSection === 'volunteer' ? 'text-white' : 'text-white/70 hover:text-white'}`}
               >
                 ECA
               </button>
@@ -707,17 +823,17 @@ export default function Portfolio() {
               }}
             >
               {/* Navigation */}
-              <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-4" style={{ pointerEvents: "auto" }}>
+              <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20 flex items-center gap-3" style={{ pointerEvents: "auto" }}>
                 <Button variant="ghost" size="sm" onClick={goToPrevious} className="text-white/70 hover:text-white">
                   <ChevronLeft className="w-5 h-5" />
                 </Button>
 
-                <div className="flex gap-2">
+                <div className="flex gap-2 bg-black/30 border border-white/10 backdrop-blur-md rounded-full px-3 py-1">
                   {slides.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => goToSlide(index)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      className={`w-2 h-2 rounded-full transition-all duration-300 border border-white/10 ${
                         index === currentSlide ? "bg-white" : "bg-white/30"
                       }`}
                     />
@@ -877,6 +993,7 @@ export default function Portfolio() {
                               </div>
 
                               <div className="flex gap-3 mb-6">
+                                <a href="/Shijal_Sharma_Poudel_Resume.pdf" download>
                                 <Button
                                   className="bg-white/10 hover:bg-white/20 border border-white/20 text-white"
                                   size="default"
@@ -884,6 +1001,7 @@ export default function Portfolio() {
                                   <Download className="w-4 h-4 mr-2" />
                                   Download CV
                                 </Button>
+                                </a>
                                 <Button
                                   onClick={() => setShowAboutMe(!showAboutMe)}
                                   className="bg-white/10 hover:bg-white/20 border border-white/20 text-white"
@@ -895,66 +1013,49 @@ export default function Portfolio() {
                               </div>
 
                               {showAboutMe && (
-                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-                                  <div className="about-section">
-                                    <div className="about-header">
-                                      <img
-                                        src={slide.content.image}
-                                        alt="Profile"
-                                        className="profile-image"
-                                      />
-                                      <div className="header-content">
-                                        <h1 className="name-title">{slide.content.name}</h1>
-                                        <p className="text-xl text-white/90 mb-2">{slide.content.title}</p>
-                                        <div className="location">
-                                          <MapPin size={16} />
-                                          {slide.content.location}
+                                <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                                  <div className="absolute inset-0 bg-gradient-to-br from-purple-900/80 via-black/85 to-pink-900/80 backdrop-blur-md" onClick={() => setShowAboutMe(false)} />
+                                  <div className="relative w-full max-w-3xl rounded-2xl p-[1px] bg-gradient-to-r from-purple-500/30 to-pink-500/30 shadow-2xl">
+                                    <Card className="relative bg-black/40 backdrop-blur-md border-white/10 text-white p-6 rounded-2xl">
+                                    <div className="flex items-start gap-4">
+                                      <div className="w-24 h-24 rounded-full overflow-hidden border border-white/10 flex-shrink-0">
+                                        <img src={slide.content.image} alt="Profile" className="w-full h-full object-cover" />
                                         </div>
-                                        <div className="about-buttons">
-                                          <button className="btn btn-primary">
-                                            <Download size={16} />
-                                            Download CV
-                                          </button>
-                                          <button 
-                                            className="btn btn-secondary"
-                                            onClick={() => setShowAboutMe(false)}
-                                          >
-                                            <X size={16} />
-                                            Close
-                                          </button>
+                                      <div className="flex-1">
+                                        <div className="flex flex-wrap items-center justify-between gap-2">
+                                          <div>
+                                            <h2 className="text-xl font-bold">{slide.content.name}</h2>
+                                            <p className="text-white/80">{slide.content.title}</p>
+                                            <div className="flex items-center gap-1 text-white/60 text-sm"><MapPin className="w-3.5 h-3.5" /> {slide.content.location}</div>
+                                        </div>
+                                          <div className="flex gap-2">
+                                            <a href="/Shijal_Sharma_Poudel_Resume.pdf" download>
+                                              <Button size="sm" className="bg-white/10 hover:bg-white/20 border border-white/20 text-white"><Download className="w-4 h-4 mr-2" />CV</Button>
+                                            </a>
+                                            <Button size="sm" variant="ghost" onClick={() => setShowAboutMe(false)} className="text-white/70 hover:text-white border border-white/10">Close</Button>
+                                      </div>
+                                    </div>
+                                        <div className="mt-4 grid md:grid-cols-2 gap-4">
+                                          <div>
+                                            <h3 className="text-sm font-semibold mb-2">About Me</h3>
+                                            <p className="text-sm text-white/80 leading-relaxed">{slide.content.about}</p>
+                                          </div>
+                                          <div>
+                                            <h3 className="text-sm font-semibold mb-2">Research Interests</h3>
+                                            <div className="flex flex-wrap gap-1.5">
+                                        {slide.content.researchInterests?.split(',').map((interest, index) => (
+                                                <span key={index} className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/80 border border-white/10">{interest.trim()}</span>
+                                              ))}
+                                    </div>
+                                  </div>
+                                        </div>
+                                        <div className="mt-4 flex flex-wrap gap-2 text-sm">
+                                          <a href={`mailto:${slide.content.email}`} className="px-2 py-1 bg-white/10 rounded border border-white/10">{slide.content.email}</a>
+                                          <span className="px-2 py-1 bg-white/10 rounded border border-white/10">{slide.content.phone}</span>
                                         </div>
                                       </div>
                                     </div>
-
-                                    <section>
-                                      <h2 className="section-title">About Me</h2>
-                                      <p className="about-text">{slide.content.about}</p>
-                                    </section>
-
-                                    <section>
-                                      <h2 className="section-title">Research Interests</h2>
-                                      <ul className="interests-list">
-                                        {slide.content.researchInterests?.split(',').map((interest, index) => (
-                                          <li key={index}>{interest.trim()}</li>
-                                        ))}
-                                      </ul>
-                                    </section>
-
-                                    <div className="contact-info">
-                                      <a href={`mailto:${slide.content.email}`} className="contact-item">
-                                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                          <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
-                                          <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
-                                        </svg>
-                                        {slide.content.email}
-                                      </a>
-                                      <span className="contact-item">
-                                        <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                                          <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z" />
-                                        </svg>
-                                        {slide.content.phone}
-                                      </span>
-                                    </div>
+                                    </Card>
                                   </div>
                                 </div>
                               )}
@@ -1141,281 +1242,116 @@ export default function Portfolio() {
       </section>
 
       {/* Second Page - Experience and Projects */}
-      <div className="min-h-screen bg-gradient-to-br from-black via-purple-900 to-pink-900">
+      <div className="min-h-screen">
         <div className="min-h-screen p-8 space-y-12">
-          {/* Experience Section */}
-          <section id="experience-section" className="max-w-6xl mx-auto">
-            <div className="text-center mb-8">
-              <h2 className="text-3xl font-bold text-white mb-2">My Experience</h2>
-              <p className="text-white/70">Professional journey and key achievements</p>
-            </div>
-            <div className="grid grid-cols-1 gap-4">
-              {slides[2].content.positions?.map((position, idx) => (
-                <Card
-                  key={idx}
-                  className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-4 hover:bg-black/30 transition-all duration-300"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="flex-shrink-0">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <Briefcase className="w-5 h-5 text-white" />
-                      </div>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <h3 className="text-lg font-bold">{position.title}</h3>
-                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs">
-                          {position.company}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-white/60 mb-3">
-                        <span className="flex items-center gap-1">
-                          <MapPin className="w-3.5 h-3.5" /> {position.location}
-                        </span>
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3.5 h-3.5" /> {position.duration}
-                        </span>
-                      </div>
-                      <ul className="space-y-2">
-                        {position.achievements.map((achievement, achIdx) => (
-                          <li key={achIdx} className="text-sm text-white/80 flex gap-2 items-start">
-                            <TrendingUp className="w-4 h-4 text-purple-400 flex-shrink-0 mt-0.5" />
-                            <span>{achievement}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </section>
+          {/* Removed duplicate Experience Section (kept the detailed one below) */}
 
           {/* My Projects Section */}
-          <section id="projects" className="max-w-6xl mx-auto">
+          <section id="projects" className="max-w-6xl mx-auto py-12">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">My Projects</h2>
               <p className="text-white/70">Showcasing my technical expertise through innovative solutions</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {projects.map((project, idx) => (
+            {/* 3-card viewport with manual controls and depth styles */}
+            <div className="relative">
+              <div className="flex items-center justify-end mb-4 gap-2">
+                <Button variant="ghost" size="sm" onClick={() => prevProjects(3)} className="text-white/70 hover:text-white">
+                  <ChevronLeft className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="sm" onClick={() => nextProjects(3)} className="text-white/70 hover:text-white">
+                  <ChevronRight className="w-5 h-5" />
+                </Button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {visibleProjects(3).map((project, idx) => (
                 <Card
-                  key={idx}
-                  className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-4 hover:bg-black/30 transition-all duration-300"
+                    key={`${project.title}-${idx}`}
+                    className="bg-black/40 backdrop-blur-md border-white/10 text-white p-6 shadow-lg hover:border-white/20 transition-transform duration-300 hover:scale-[1.01] h-[520px] flex flex-col"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
-                      <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
+                        <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center shadow-lg">
                         <Code className="w-5 h-5 text-white" />
                       </div>
                     </div>
-                    <div className="flex-1">
+                          <div className="flex-1 flex flex-col">
                       <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
-                        <h3 className="text-lg font-bold">{project.title}</h3>
-                        <span
-                          className={`px-2 py-0.5 rounded-full text-xs ${
-                            project.status === "In Progress"
-                              ? "bg-yellow-500/20 text-yellow-300"
-                              : "bg-green-500/20 text-green-300"
-                          }`}
-                        >
+                          <h3 className="text-lg font-bold tracking-tight">{project.title}</h3>
+                          <span className="px-2 py-0.5 rounded-full text-xs bg-green-500/20 text-green-300 border border-green-500/20">
                           {project.status}
                         </span>
                       </div>
                       <p className="text-white/60 text-xs mb-2 flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" /> {project.year}
                       </p>
-                      <p className="text-white/80 text-sm leading-relaxed mb-3">{project.description}</p>
-                      <div className="flex items-center justify-between">
-                        <div className="flex flex-wrap gap-1.5">
-                          {project.technologies.slice(0, 3).map((tech, techIdx) => (
-                            <span key={techIdx} className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/80">
+                            
+                            <p className="text-white/80 text-sm leading-relaxed mb-3 line-clamp-6">{project.description}</p>
+
+                            <div className="mt-auto flex flex-wrap gap-1.5">
+                          {project.technologies.map((tech, techIdx) => (
+                            <span key={techIdx} className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/80 border border-white/10">
                               {tech}
                             </span>
                           ))}
-                          {project.technologies.length > 3 && (
-                            <span className="px-2 py-0.5 bg-white/10 rounded-full text-xs text-white/80">
-                              +{project.technologies.length - 3}
-                            </span>
-                          )}
-                        </div>
-                        <div className="flex gap-1">
-                          <Button variant="ghost" size="sm" className="text-white/70 hover:text-white h-7 w-7 p-0">
-                            <Github className="w-4 h-4" />
-                          </Button>
-                          <Button variant="ghost" size="sm" className="text-white/70 hover:text-white h-7 w-7 p-0">
-                            <ExternalLink className="w-4 h-4" />
-                          </Button>
-                        </div>
                       </div>
                     </div>
                   </div>
                 </Card>
               ))}
+              </div>
             </div>
           </section>
 
           <section id="experience-section" className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-4">My Experience</h2>
-              <p className="text-white/70 text-lg">Professional journey and key achievements</p>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-white mb-2">My Experience</h2>
+              <p className="text-white/70">Professional journey and key achievements</p>
             </div>
 
-            <div className="space-y-8">
-              <Card className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-8">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                      <Briefcase className="w-6 h-6 text-white" />
+            <div className="space-y-4">
+              {slides[2].content.positions?.map((position, idx) => (
+                <Card key={idx} className="bg-black/40 backdrop-blur-md border-white/10 text-white p-5 shadow-xl">
+                  <div className="flex items-start gap-4">
+                    <div className="w-10 h-10 bg-gradient-to-r from-purple-500 to-pink-500 rounded-lg flex items-center justify-center flex-shrink-0">
+                      <Briefcase className="w-5 h-5 text-white" />
                     </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center justify-between gap-2 mb-1">
+                        <div className="truncate">
+                          <h3 className="text-lg font-semibold truncate">{position.title}</h3>
                   </div>
-
-                  <div className="flex-1">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-1">Data Engineer</h3>
-                        <p className="text-xl text-purple-300 mb-1">Fusemachines</p>
-                        <p className="text-white/60">Kathmandu, Nepal • Aug 2022 – Present</p>
-                      </div>
-                      <div className="mt-4 md:mt-0">
-                        <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm">
-                          Current Position
+                        <span className="px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-full text-xs">
+                          {position.company}
                         </span>
                       </div>
+                      <div className="text-xs text-white/60 mb-3 flex items-center gap-3">
+                        <span className="flex items-center gap-1"><MapPin className="w-3.5 h-3.5" /> {position.location}</span>
+                        <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {position.duration}</span>
                     </div>
-
-                    <div className="space-y-6">
-                      <div>
-                        <h4 className="text-lg font-semibold text-purple-300 mb-3">Key Achievements</h4>
-                        <div className="space-y-3">
-                          <div className="flex items-start gap-3">
-                            <TrendingUp className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="font-medium text-white/90">Cloud Migration & Cost Optimization</p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                Played a pivotal role in migrating data pipelines from Azure Synapse to Databricks,
-                                implementing the Medallion Architecture (bronze, silver, gold). Reduced monthly cloud
-                                costs by 90% and peak costs by 85%. Simplified business logic, automated pipeline
-                                triggers using Terraform.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-start gap-3">
-                            <Code className="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="font-medium text-white/90">ETL Framework Development</p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                Extracted and ingested data from APIs, Google Sheets, MongoDB, and HubSpot. Created
-                                automated data pipelines using Airbyte and Glue Jobs for data transformation and metric
-                                generation, integrating AWS S3 with Athena and Superset.
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className="flex items-start gap-3">
-                            <Users className="w-5 h-5 text-purple-400 mt-0.5 flex-shrink-0" />
-                            <div>
-                              <p className="font-medium text-white/90">Instructor & Mentor</p>
-                              <p className="text-white/70 text-sm leading-relaxed">
-                                Conducted training sessions on SQL, Apache Spark, Azure technologies, Apache Kafka, and
-                                MongoDB. Mentored new data engineering trainees in advanced topics and practical
-                                implementation techniques.
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div>
-                        <h4 className="text-lg font-semibold text-purple-300 mb-3">Technologies Used</h4>
-                        <div className="flex flex-wrap gap-2">
-                          {[
-                            "Python",
-                            "SQL",
-                            "Apache Spark",
-                            "Azure",
-                            "Databricks",
-                            "AWS",
-                            "Terraform",
-                            "Apache Kafka",
-                            "MongoDB",
-                            "Airbyte",
-                          ].map((tech, idx) => (
-                            <span key={idx} className="px-3 py-1 bg-white/10 rounded-full text-xs text-white/80">
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
+                      <ul className="space-y-2">
+                        {position.achievements.slice(0, 4).map((ach, aIdx) => (
+                          <li key={aIdx} className="text-white/80 text-sm flex gap-2 items-start">
+                            <TrendingUp className="w-4 h-4 text-purple-300 flex-shrink-0 mt-0.5" />
+                            <span className="leading-relaxed">{ach}</span>
+                          </li>
+                        ))}
+                      </ul>
                   </div>
                 </div>
               </Card>
-
-              <Card className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-8">
-                <div className="flex items-start gap-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-lg flex items-center justify-center">
-                      <BookOpen className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-
-                  <div className="flex-1">
-                    <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
-                      <div>
-                        <h3 className="text-2xl font-bold mb-1">Teaching Assistant</h3>
-                        <p className="text-xl text-blue-300 mb-1">Asian School of Management and Technology</p>
-                        <p className="text-white/60">Nepal • Jan 2021 – Apr 2021</p>
-                      </div>
-                      <div className="mt-4 md:mt-0">
-                        <span className="px-3 py-1 bg-blue-500/20 text-blue-300 rounded-full text-sm">
-                          Previous Role
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="text-lg font-semibold text-blue-300 mb-3">Responsibilities</h4>
-                        <div className="space-y-2">
-                          <div className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-white/70 text-sm">
-                              Assisted in teaching undergraduate courses on Algorithms and Database Management Systems
-                            </p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-white/70 text-sm">
-                              Led lab sessions and tutoring, providing hands-on guidance in problem-solving and SQL
-                              programming
-                            </p>
-                          </div>
-                          <div className="flex items-start gap-2">
-                            <div className="w-1.5 h-1.5 bg-blue-400 rounded-full mt-2 flex-shrink-0"></div>
-                            <p className="text-white/70 text-sm">
-                              Helped design assignments and assess coding submissions, contributing to collaborative
-                              learning environment
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              ))}
             </div>
           </section>
 
           <section id="education-section" className="max-w-6xl mx-auto">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-4">My Education</h2>
-              <p className="text-white/70 text-lg">Academic foundation and achievements</p>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-bold text-white mb-2">My Education</h2>
+              <p className="text-white/70">Academic foundation and achievements</p>
             </div>
 
-            <Card className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-8">
+            <Card className="bg-black/40 backdrop-blur-md border-white/10 text-white p-6 shadow-xl">
               <div className="flex items-start gap-6">
                 <div className="flex-shrink-0">
                   <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-lg flex items-center justify-center">
@@ -1424,20 +1360,20 @@ export default function Portfolio() {
                 </div>
 
                 <div className="flex-1">
-                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <div>
-                      <h3 className="text-2xl font-bold mb-1">Bachelor of Science in Computer Application</h3>
-                      <p className="text-xl text-green-300 mb-1">Tribhuvan University, Nepal</p>
-                      <p className="text-white/60">2019 – 2023 • GPA: 3.20/4.00</p>
+                      <h3 className="text-xl font-bold mb-1">Bachelor of Science in Computer Application</h3>
+                      <p className="text-lg text-green-300 mb-1">Tribhuvan University, Nepal</p>
+                      <p className="text-white/60 text-sm">2019 – 2023 • GPA: 3.20/4.00</p>
                     </div>
                     <div className="mt-4 md:mt-0">
                       <span className="px-3 py-1 bg-green-500/20 text-green-300 rounded-full text-sm">Graduated</span>
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-8">
+                  <div className="grid md:grid-cols-2 gap-6">
                     <div>
-                      <h4 className="text-lg font-semibold text-green-300 mb-4">Relevant Coursework</h4>
+                      <h4 className="text-base font-semibold text-green-300 mb-3">Relevant Coursework</h4>
                       <div className="grid grid-cols-1 gap-2">
                         {[
                           "Machine Learning",
@@ -1448,18 +1384,17 @@ export default function Portfolio() {
                           "Probability & Statistics",
                           "Web Technologies",
                         ].map((course, idx) => (
-                          <div key={idx} className="flex items-center gap-2">
-                            <div className="w-1.5 h-1.5 bg-green-400 rounded-full"></div>
-                            <span className="text-white/80 text-sm">{course}</span>
+                          <div key={idx} className="px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white/80 text-sm">
+                            {course}
                           </div>
                         ))}
                       </div>
                     </div>
 
                     <div>
-                      <h4 className="text-lg font-semibold text-green-300 mb-4">Academic Achievements</h4>
-                      <div className="space-y-4">
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                      <h4 className="text-base font-semibold text-green-300 mb-3">Academic Achievements</h4>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-white/5 rounded-lg border border-white/10">
                           <div className="flex items-center gap-2 mb-2">
                             <Trophy className="w-4 h-4 text-yellow-400" />
                             <span className="font-medium text-white/90">Best Final Year Project</span>
@@ -1470,7 +1405,7 @@ export default function Portfolio() {
                           </p>
                         </div>
 
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className="p-3 bg-white/5 rounded-lg border border-white/10">
                           <div className="flex items-center gap-2 mb-2">
                             <Award className="w-4 h-4 text-blue-400" />
                             <span className="font-medium text-white/90">Merit-Based Scholarship</span>
@@ -1480,7 +1415,7 @@ export default function Portfolio() {
                           </p>
                         </div>
 
-                        <div className="p-4 bg-white/5 rounded-lg border border-white/10">
+                        <div className="p-3 bg-white/5 rounded-lg border border-white/10">
                           <div className="flex items-center gap-2 mb-2">
                             <Users className="w-4 h-4 text-purple-400" />
                             <span className="font-medium text-white/90">Student Excellence Recognition</span>
@@ -1493,7 +1428,7 @@ export default function Portfolio() {
                     </div>
                   </div>
 
-                  <div className="mt-8">
+                  <div className="mt-6">
                     {/* <h4 className="text-lg font-semibold text-green-300 mb-4">Research Interests</h4> */}
                     {/* <p className="text-white/80 leading-relaxed">
                       Leveraging Data for AI, optimization modeling, human-centered system design, behavioral analytics,
@@ -1506,43 +1441,32 @@ export default function Portfolio() {
           </section>
 
           {/* Skills Section */}
-          <section id="skills" className="py-20">
+          <section id="skills" className="py-12">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="text-center mb-16">
-                <h2 className="text-4xl font-bold text-white mb-4">Technical Expertise</h2>
-                <p className="text-lg text-white/70">Comprehensive skill set in data engineering and machine learning</p>
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold text-white mb-2">Technical Expertise</h2>
+                <p className="text-white/70">Core technologies across data engineering and ML</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {Object.entries(skills).map(([category, { icon, items, color }]) => (
-                  <div
-                    key={category}
-                    className="relative group"
-                  >
-                    <div 
-                      className="absolute inset-0.5 bg-gradient-to-r opacity-75 blur-sm group-hover:opacity-100 transition-opacity rounded-2xl"
-                      style={{ backgroundImage: `linear-gradient(to right, var(--tw-gradient-stops))` }}
-                    ></div>
-                    <div className="relative bg-black/40 backdrop-blur-md rounded-2xl p-6 h-full border border-white/10 hover:border-white/20 transition-colors">
-                      <div className="flex items-center gap-3 mb-6">
-                        <div className={`p-2.5 rounded-xl bg-gradient-to-r ${color}`}>
+                  <div key={category} className="relative group">
+                    <div className="relative bg-black/40 backdrop-blur-md rounded-2xl p-4 h-full border border-white/10 hover:border-white/20 transition-colors shadow-lg">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className={`p-2 rounded-xl bg-gradient-to-r ${color}`}>
                           {icon}
                         </div>
-                        <h3 className="text-xl font-bold text-white">{category}</h3>
+                        <h3 className="text-base font-semibold text-white/90">{category}</h3>
                       </div>
-                      
-                      <div className="grid gap-3">
+                      <div className="space-y-2">
                         {items.map((item, idx) => (
                           <div 
                             key={idx} 
-                            className="flex items-center justify-between p-2 rounded-lg bg-white/5 hover:bg-white/10 transition-colors"
+                            className="px-3 py-2 rounded-md bg-white/5 border border-white/10 text-white/80 flex items-center justify-between"
                           >
-                            <div className="flex items-center gap-2">
-                              <div className={`w-1.5 h-1.5 rounded-full bg-gradient-to-r ${color}`} />
-                              <span className="text-white/90">{item.name}</span>
-                            </div>
+                            <span className="text-sm">{item.name}</span>
                             {'years' in item && item.years && (
-                              <span className="text-sm text-white/60">{item.years}</span>
+                              <span className="text-xs text-white/50">{item.years}</span>
                             )}
                           </div>
                         ))}
@@ -1575,23 +1499,23 @@ export default function Portfolio() {
           
 
           {/* Awards and Certifications Section */}
-          <section id="awards" className="max-w-6xl mx-auto py-20">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold text-white mb-4">Awards & Certifications</h2>
-              <p className="text-white/70 text-lg">Recognition for excellence and achievement</p>
+          <section id="awards" className="max-w-6xl mx-auto py-12">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold text-white mb-2">Awards & Certifications</h2>
+              <p className="text-white/70">Recognition for excellence and achievement</p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {awardsAndCertifications.map((award, idx) => (
                 <Card
                   key={idx}
-                  className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-6 hover:bg-black/30 transition-all duration-300"
+                  className="bg-black/40 backdrop-blur-md border-white/10 text-white p-5 shadow-lg hover:border-white/20 hover:shadow-yellow-500/10 transition-transform duration-300 hover:scale-[1.01]"
                 >
-                  <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-start justify-between mb-3">
                     <div className="flex items-center gap-2">
                       <Trophy className="w-5 h-5 text-yellow-400" />
                       <span
-                        className={`px-2 py-1 rounded-full text-xs ${
+                        className={`px-2 py-0.5 rounded-full text-xs ${
                           award.type === "Award"
                             ? "bg-yellow-500/20 text-yellow-300"
                             : award.type === "Scholarship"
@@ -1602,10 +1526,10 @@ export default function Portfolio() {
                         {award.type}
                       </span>
                     </div>
-                    <span className="text-white/60 text-sm">{award.year}</span>
+                    <span className="text-white/60 text-xs">{award.year}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold mb-3">{award.title}</h3>
+                  <h3 className="text-base font-semibold mb-2">{award.title}</h3>
                   <p className="text-white/80 text-sm leading-relaxed">{award.description}</p>
                 </Card>
               ))}
@@ -1613,7 +1537,7 @@ export default function Portfolio() {
           </section>
 
           {/* Volunteer Work Section */}
-          <section id="volunteer" className="max-w-6xl mx-auto py-20">
+          <section id="volunteer" className="max-w-6xl mx-auto py-12">
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold text-white mb-2">Volunteer Work</h2>
               <p className="text-white/70">Giving back to the community through knowledge sharing</p>
@@ -1623,7 +1547,7 @@ export default function Portfolio() {
               {volunteerWork.map((work, idx) => (
                 <Card
                   key={idx}
-                  className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-4 hover:bg-black/30 transition-all duration-300"
+                  className="bg-black/40 backdrop-blur-md border-white/10 text-white p-5 shadow-lg hover:border-white/20 hover:shadow-rose-500/10 transition-transform duration-300 hover:scale-[1.01]"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex-shrink-0">
@@ -1654,16 +1578,16 @@ export default function Portfolio() {
           </section>
 
           {/* Slideshow Section */}
-          <section id="gallery" className="max-w-7xl mx-auto pb-20 pt-12">
-            <div className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-xl shadow-2xl">
-              <Card className="bg-black/20 backdrop-blur-sm border-white/10 text-white p-10">
+          <section id="gallery" className="max-w-7xl mx-auto py-12">
+            <div className="relative w-full max-w-6xl mx-auto overflow-hidden rounded-2xl">
+              <Card className="bg-black/40 backdrop-blur-md border-white/10 text-white p-8 shadow-lg">
                 <div className="relative">
                   {/* Main Photo Display */}
-                  <div className="relative h-[600px] rounded-lg overflow-hidden mb-8">
+                  <div className="relative h-[520px] rounded-xl overflow-hidden mb-6 border border-white/10">
                     <img
                       src={photoGallery[currentPhoto].image || "/placeholder.svg"}
                       alt={photoGallery[currentPhoto].title}
-                      className="w-full h-full object-cover transition-all duration-500"
+                      className="w-full h-full object-cover transition-all duration-500 scale-[1.02]"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
@@ -1673,7 +1597,7 @@ export default function Portfolio() {
                       variant="ghost"
                       size="sm"
                       onClick={() => setIsPhotoPlaying(!isPhotoPlaying)}
-                      className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50"
+                      className="bg-black/30 backdrop-blur-md text-white border border-white/10 hover:bg-black/50"
                     >
                       {isPhotoPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
                     </Button>
@@ -1684,7 +1608,7 @@ export default function Portfolio() {
                       variant="ghost"
                       size="lg"
                       onClick={prevPhoto}
-                      className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full p-3"
+                      className="bg-black/30 backdrop-blur-md text-white border border-white/10 hover:bg-black/50 rounded-full p-3"
                     >
                       <ChevronLeft className="w-8 h-8" />
                     </Button>
@@ -1695,7 +1619,7 @@ export default function Portfolio() {
                       variant="ghost"
                       size="lg"
                       onClick={nextPhoto}
-                      className="bg-black/30 backdrop-blur-sm text-white hover:bg-black/50 rounded-full p-3"
+                      className="bg-black/30 backdrop-blur-md text-white border border-white/10 hover:bg-black/50 rounded-full p-3"
                     >
                       <ChevronRight className="w-8 h-8" />
                     </Button>
@@ -1705,12 +1629,12 @@ export default function Portfolio() {
                   <div className="absolute bottom-4 left-4 right-4">
                     <div className="flex items-center gap-3 mb-3">
                       <Camera className="w-6 h-6 text-purple-400" />
-                      <span className="px-3 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm">
+                      <span className="px-3 py-1.5 bg-purple-500/20 text-purple-300 rounded-full text-sm border border-white/10">
                         {photoGallery[currentPhoto].category}
                       </span>
                     </div>
-                    <h3 className="text-2xl font-bold mb-2">{photoGallery[currentPhoto].title}</h3>
-                    <p className="text-white/80 text-base">{photoGallery[currentPhoto].description}</p>
+                    <h3 className="text-2xl font-bold mb-1">{photoGallery[currentPhoto].title}</h3>
+                    <p className="text-white/80 text-sm md:text-base">{photoGallery[currentPhoto].description}</p>
                   </div>
                 </div>
 
@@ -1720,7 +1644,7 @@ export default function Portfolio() {
                     <button
                       key={idx}
                       onClick={() => goToPhoto(idx)}
-                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-300 border border-white/10 ${
                         idx === currentPhoto ? "bg-purple-400" : "bg-white/30 hover:bg-white/50"
                       }`}
                     />
