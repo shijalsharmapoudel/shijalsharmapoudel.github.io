@@ -31,4 +31,10 @@ yarn-error.log*
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
+next-env.d.ts# Node/Next build outputs
+.next/
+.next/cache/
+node_modules/
+out/
+.DS_Store
+.env*
